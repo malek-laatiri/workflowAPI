@@ -49,4 +49,14 @@ class EmailService
 
         return $this->mailer->send($messages);
     }
+    public function sendEmailTemplate($subject,$email,$body)
+    {
+        $messages = (new \Swift_Message($subject))
+            ->setFrom('testagence6@gmail')
+            ->setTo($email)
+            ->setBody($body);
+
+
+        return $this->mailer->send($messages);
+    }
 }

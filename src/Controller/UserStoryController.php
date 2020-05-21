@@ -10,6 +10,7 @@ use App\Form\ProgressBarType;
 use App\Form\PutIsComfirmedType;
 use App\Form\PutIsVerifiedType;
 use App\Form\UserStoryType;
+use App\Service\EmailService;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -72,7 +73,7 @@ class UserStoryController extends FOSRestController
      * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
      * @Security(name="Bearer")
      */
-    public function postUserStory(Request $request)
+    public function postUserStory(Request $request,EmailService $mailer)
     {
         $data = json_decode(
             $request->getContent(),
@@ -92,6 +93,9 @@ class UserStoryController extends FOSRestController
                 JsonResponse::HTTP_BAD_REQUEST
             );
         }
+            $mailer->sendEmailTemplate("New Task", $form->getData()->getAsignedTo()->getEmail(),"you are asigned to a new Userstory");
+
+
         $entityManager = $this->getDoctrine()->getManager();
 
         $entityManager->persist($form->getData());

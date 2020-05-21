@@ -6,6 +6,7 @@ use App\Entity\Project;
 use App\Form\ProjectType;
 use App\Repository\ProjectRepository;
 use App\Repository\UserRepository;
+use App\Service\EmailService;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -63,7 +64,7 @@ class ProjectController extends FOSRestController
     public function getAllProjects(int $userid)
     {
         $repository = $this->getDoctrine()->getRepository(Project::class);
-        $allProjects = $repository->findBy(['createdBy'=>$userid]);
+        $allProjects = $repository->findBy(['createdBy' => $userid]);
         $serializer = SerializerBuilder::create()->build();
         $data = $serializer->serialize($allProjects, 'json', SerializationContext::create()->enableMaxDepthChecks());
         $response = new Response($data);
@@ -92,7 +93,7 @@ class ProjectController extends FOSRestController
      * * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
      * @Security(name="Bearer")
      */
-    public function postProject(Request $request)
+    public function postProject(Request $request,EmailService $mailer)
     {
         $data = json_decode(
             $request->getContent(),
@@ -101,7 +102,6 @@ class ProjectController extends FOSRestController
         $project = new Project();
         $form = $this->createForm(ProjectType::class, $project);
         $form->submit($data);
-
         if (!$form->isValid()) {
             return new JsonResponse(
                 [
@@ -112,8 +112,10 @@ class ProjectController extends FOSRestController
                 JsonResponse::HTTP_BAD_REQUEST
             );
         }
+        foreach ($form->getData()->getTeam() as &$value) {
+            $mailer->sendEmailTemplate("New Project", $value->getEmail(),"you are asigned to a new project");
 
-
+        }
         $entityManager = $this->getDoctrine()->getManager();
 
         $entityManager->persist($form->getData());
@@ -351,7 +353,7 @@ class ProjectController extends FOSRestController
      * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
      * @Security(name="Bearer")
      */
-    public function getProjectTeam($id,UserRepository $userRepository)
+    public function getProjectTeam($id, UserRepository $userRepository)
     {
         $ProjectTeam = $userRepository->findProjectTeam($id);
         $serializer = SerializerBuilder::create()->build();
@@ -442,7 +444,7 @@ class ProjectController extends FOSRestController
 
         $repository = $this->getDoctrine()->getRepository(Project::class);
 
-        $project = $repository->findOneBy(['id'=>$id]);
+        $project = $repository->findOneBy(['id' => $id]);
         if (empty($project)) {
             return new JsonResponse(['status' => 'Expedition not Found'], Response::HTTP_NOT_FOUND);
         }
@@ -487,7 +489,7 @@ class ProjectController extends FOSRestController
 
         $repository = $this->getDoctrine()->getRepository(Project::class);
 
-        $project = $repository->findBy(['createdBy'=>$id,'done'=>0]);
+        $project = $repository->findBy(['createdBy' => $id, 'done' => 0]);
         if (empty($project)) {
             return new JsonResponse(['status' => 'Expedition not Found'], Response::HTTP_NOT_FOUND);
         }
