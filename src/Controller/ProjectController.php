@@ -93,7 +93,7 @@ class ProjectController extends FOSRestController
      * * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
      * @Security(name="Bearer")
      */
-    public function postProject(Request $request,EmailService $mailer)
+    public function postProject(Request $request, EmailService $mailer)
     {
         $data = json_decode(
             $request->getContent(),
@@ -113,7 +113,7 @@ class ProjectController extends FOSRestController
             );
         }
         foreach ($form->getData()->getTeam() as &$value) {
-            $mailer->sendEmailTemplate("New Project", $value->getEmail(),"you are asigned to a new project");
+            $mailer->sendEmailTemplate("New Project", $value->getEmail(), "you are asigned to a new project");
 
         }
         $entityManager = $this->getDoctrine()->getManager();
@@ -454,14 +454,13 @@ class ProjectController extends FOSRestController
     }
 
     /**
-     * get project by created by
+     * update project
      * @param Request $request
-     * @Rest\View()
-     * @Rest\Get("/ProjectByCreated/{id}")
-     * @return Response
+     * @Rest\Patch("/ProjectDone/{id}")
+     * @return \Symfony\Component\Form\FormInterface|Response
      * @SWG\Response(
      *     response=200,
-     *     description="Returns one project",
+     *     description="update project",
      *    @SWG\Schema(
      *                   type="object",
      * @SWG\Property(property="id",type="integer",description="ID"),
@@ -471,7 +470,8 @@ class ProjectController extends FOSRestController
      * @SWG\Property(property="createdBy",type="array",@Model(type="App\Entity\User"),description="User"),
      * @SWG\Property(property="backlog",type="array",@Model(type="App\Entity\Backlog"),description="backlog of the project"),
      * @SWG\Property(property="Team",type="array",@Model(type="App\Entity\User"),description="List of users in the same projects"),
-     * @SWG\Property(property="done",type="boolean",description="duedate"),))
+     * @SWG\Property(property="done",type="boolean",description="duedate")
+     * ))
      * @SWG\Response(
      *     response=401,
      *     description="JWT Token not found / Invalid JWT Token / unauthorized",
@@ -484,17 +484,29 @@ class ProjectController extends FOSRestController
      * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
      * @Security(name="Bearer")
      */
-    public function getProjectByCreatedBy(Request $request, int $id)
+    public function putDoneProject(Request $request, int $id)
     {
-
         $repository = $this->getDoctrine()->getRepository(Project::class);
 
-        $project = $repository->findBy(['createdBy' => $id, 'done' => 0]);
+        $project = $repository->find($id);
         if (empty($project)) {
-            return new JsonResponse(['status' => 'Expedition not Found'], Response::HTTP_NOT_FOUND);
+            return new JsonResponse(
+                [
+                    'status' => 'Expedition not Found',
+                ],
+                JsonResponse::HTTP_NOT_FOUND
+            );
         }
-        $data = SerializerBuilder::create()->build()->serialize($project, 'json');
-        $response = new Response($data);
-        return $response;
+        $data = json_decode(
+            $request->getContent(),
+            true
+        );
+        $project->setDone(true);
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $entityManager->persist($project);
+        $entityManager->flush();
+        return new JsonResponse(['status' => 'ok',], JsonResponse::HTTP_OK);
     }
 }
