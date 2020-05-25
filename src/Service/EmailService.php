@@ -25,6 +25,13 @@ class EmailService
             ->setFrom('testagence6@gmail')
             ->setTo($user->getEmail())
             ->setBody("your username ".$user->getUsername()." you passsword ".$pass);
+//        ->setBody(
+//        $this->renderView(
+//            'email.html.twig',
+//            ['name' => $name]
+//        ),
+//        'text/html'
+//    );
 
 
         return $this->mailer->send($messages);
