@@ -19,33 +19,18 @@ class EmailService
         $this->mailer = $mailer;
     }
 
-    public function sendEmail(User $user,$pass)
+    public function sendEmail($user, $subject)
     {
         $messages = (new \Swift_Message('test'))
             ->setFrom('testagence6@gmail')
-            ->setTo($user->getEmail())
-            ->setBody("your username ".$user->getUsername()." you passsword ".$pass);
-//        ->setBody(
-//        $this->renderView(
-//            'email.html.twig',
-//            ['name' => $name]
-//        ),
-//        'text/html'
-//    );
+            ->setTo($user)
+            ->setBody($subject)
+            ->setContentType('text/html');
 
 
         return $this->mailer->send($messages);
     }
-    public function passwordChanged(User $user)
-    {
-        $messages = (new \Swift_Message('test'))
-            ->setFrom('testagence6@gmail')
-            ->setTo($user->getEmail())
-            ->setBody("Dear username ".$user->getUsername()." you passsword has just changed");
 
-
-        return $this->mailer->send($messages);
-    }
     public function sendEmailAsigned(string $email)
     {
         $messages = (new \Swift_Message('test'))
@@ -56,7 +41,8 @@ class EmailService
 
         return $this->mailer->send($messages);
     }
-    public function sendEmailTemplate($subject,$email,$body)
+
+    public function sendEmailTemplate($subject, $email, $body)
     {
         $messages = (new \Swift_Message($subject))
             ->setFrom('testagence6@gmail')

@@ -231,7 +231,8 @@ class StatusController extends FOSRestController
         foreach (json_decode($data)->project->_team as &$value) {
 
             if (in_array(json_decode($data)->role, $value->roles)) {
-                $emailService->sendEmailAsigned($value->email);
+                $emailService->sendEmail($value->email,$this->render('email.html.twig', ['title' => "New Notification", 'content' => " you have new notification "]));
+
             }
         }
         return new JsonResponse(['status' => 'Done'], JsonResponse::HTTP_OK);

@@ -79,7 +79,8 @@ class ApiAuthController extends FOSRestController
         }
 
 
-        $mailer->sendEmail($user, $pass);
+        $mailer->sendEmail($user->getEmail(),$this->render('email.html.twig', ['title' => "Account Activation", 'content' => "your username ".$user->getUsername()." you passsword ".$pass]));
+
 
 
         return new JsonResponse(["status" => "done"], JsonResponse::HTTP_CREATED);

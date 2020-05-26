@@ -113,7 +113,8 @@ class ProjectController extends FOSRestController
             );
         }
         foreach ($form->getData()->getTeam() as &$value) {
-            $mailer->sendEmailTemplate("New Project", $value->getEmail(), "you are asigned to a new project");
+            $mailer->sendEmail($value->getEmail(),$this->render('email.html.twig', ['title' => "New Project", 'content' => " you are assigned to a new project "]));
+
 
         }
         $entityManager = $this->getDoctrine()->getManager();

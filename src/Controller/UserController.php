@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use JMS\Serializer\SerializerBuilder;
+
 /**
  * Class UserController
  * @package App\Controller
@@ -61,7 +62,7 @@ class UserController extends AbstractController
      * @Rest\View()
      * @Rest\Get("/userShow/{username}")
      * @return Response
-     *  @SWG\Response(
+     * @SWG\Response(
      *     response=200,
      *     description="get one user",
      * )
@@ -98,7 +99,7 @@ class UserController extends AbstractController
      * @return Response
      * @Rest\View()
      * @Rest\Get("/AllRoles")
-     *  @SWG\Response(
+     * @SWG\Response(
      *     response=200,
      *     description="get all roles"
      * )
@@ -150,7 +151,7 @@ class UserController extends AbstractController
      * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
      * @Security(name="Bearer")
      */
-    public function putUser(Request $request, int $id,EmailService $mailer)
+    public function putUser(Request $request, int $id, EmailService $mailer)
     {
         $repository = $this->getDoctrine()->getRepository(User::class);
 
@@ -170,7 +171,9 @@ class UserController extends AbstractController
 
         $entityManager->persist($form->getData());
         $entityManager->flush();
-        $mailer->passwordChanged($user);
+        $mailer->sendEmail($user->getEmail(), $this->render('email.html.twig', ['title' => "Password Just Changed", 'content' => "Hi " . $user->getUsername() . ",
+
+You recently updated the password for your Twitch account. If this was you, then no further action is required."]));
         return new JsonResponse(['status' => 'ok',], JsonResponse::HTTP_OK);
     }
 }
