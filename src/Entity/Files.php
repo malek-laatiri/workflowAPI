@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\FilesRepository")
@@ -30,8 +31,8 @@ class Files
     private $imageSize;
 
     /**
-     * @var File|null
-     * @Vich\UploadableField(mapping="product_image", fileNameProperty="imageName", size="imageSize")
+     * @Vich\UploadableField(mapping="product_image", fileNameProperty="imageFile")
+     * @var File
      */
     private $imageFile;
 
@@ -96,20 +97,22 @@ class Files
     }
 
     /**
-     * @return File|null
+     * @return mixed
      */
-    public function getImageFile(): ?File
+    public function getImageFile()
     {
         return $this->imageFile;
     }
 
     /**
-     * @param File|null $imageFile
+     * @param mixed $imageFile
      */
-    public function setImageFile(?File $imageFile): void
+    public function setImageFile($imageFile): void
     {
         $this->imageFile = $imageFile;
     }
+
+
 
     /**
      * @return mixed

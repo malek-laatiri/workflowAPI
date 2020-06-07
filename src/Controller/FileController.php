@@ -7,6 +7,7 @@ use App\Form\FilesType;
 use App\Form\FileType;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
+use JMS\Serializer\SerializerBuilder;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -39,7 +40,7 @@ class FileController extends FOSRestController
      *     description="Expedition not Found",
      * )
      * @SWG\Tag(name="History")
-     * * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
+     * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
      * @Security(name="Bearer")
      */
     public function postFile(Request $request)
@@ -48,30 +49,22 @@ class FileController extends FOSRestController
             $request->getContent(),
             true
         );
-        $history = new Files();
-        $form = $this->createForm(FilesType::class, $history);
-        $form->submit($data);
-        if (!$form->isValid()) {
-            return new JsonResponse(
-                [
-                    'status' => 'Expedition not Found',
-                    'errors' => (string)$form->getErrors(true, false),
-                    'form' => $form
-                ],
-                JsonResponse::HTTP_BAD_REQUEST
-            );
-        }
+        $file = new Files();
+        $form = $this->createForm(FilesType::class, $file);
+        $file->setImageType($request->request->get('imageType'));
+        $file->setImageSize($request->request->get('imageSize'));
+        $file->setImageName($request->request->get('imageName'));
+        $file->setImageFile($request->files->get('upload')['imageFile']);
 
 
         $entityManager = $this->getDoctrine()->getManager();
 
-        $entityManager->persist($form->getData());
+        $entityManager->persist($file);
         $entityManager->flush();
 
         return new JsonResponse(
             [
-                'status' => 'ok',
-            ],
+                'status' => 'ok'],
             JsonResponse::HTTP_CREATED
         );
     }
