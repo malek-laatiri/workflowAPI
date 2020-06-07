@@ -53,7 +53,6 @@ class FileController extends FOSRestController
         $form = $this->createForm(FilesType::class, $file);
         $file->setImageType($request->request->get('imageType'));
         $file->setImageSize($request->request->get('imageSize'));
-        $file->setImageName($request->request->get('imageName'));
         $file->setImageFile($request->files->get('upload')['imageFile']);
 
 

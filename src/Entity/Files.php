@@ -31,7 +31,7 @@ class Files
     private $imageSize;
 
     /**
-     * @Vich\UploadableField(mapping="product_image", fileNameProperty="imageFile")
+     * @Vich\UploadableField(mapping="product_image", fileNameProperty="imageName")
      * @var File
      */
     private $imageFile;
