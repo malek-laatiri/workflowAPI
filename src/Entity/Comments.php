@@ -49,7 +49,7 @@ class Comments
     private $writtenBy;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Files", mappedBy="comments")
+     * @ORM\OneToMany(targetEntity="App\Entity\Files", mappedBy="comments",cascade={"remove"})
      * @Expose
      */
     private $files;

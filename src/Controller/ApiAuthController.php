@@ -41,7 +41,7 @@ class ApiAuthController extends FOSRestController
             'username' => new Length(array('min' => 1)),
             'email' => new Email(),
             'roles' => Array(),
-            'privilege'=>new NotNull()
+            'privilege' => new NotNull()
         ));
         $violations = $validator->validate($data, $constraint);
         if ($violations->count() > 0) {
@@ -59,7 +59,7 @@ class ApiAuthController extends FOSRestController
         $roles = [];
         $username = $data['username'];
         $email = $data['email'];
-        $privilege=$data['privilege'];
+        $privilege = $data['privilege'];
         array_push($roles, $data['roles']);
         $user = new User();
         $user
@@ -79,8 +79,7 @@ class ApiAuthController extends FOSRestController
         }
 
 
-        $mailer->sendEmail($user->getEmail(),$this->render('email.html.twig', ['title' => "Account Activation", 'content' => "your username ".$user->getUsername()." you passsword ".$pass]));
-
+        $mailer->sendEmail($user->getEmail(), $this->render('email.html.twig', ['title' => "Account Activation", 'content' => "your username " . $user->getUsername() . " you passsword " . $pass]));
 
 
         return new JsonResponse(["status" => "done"], JsonResponse::HTTP_CREATED);

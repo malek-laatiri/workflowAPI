@@ -54,7 +54,7 @@ class Project
     private $createdBy;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Backlog", mappedBy="project")
+     * @ORM\OneToMany(targetEntity="App\Entity\Backlog", mappedBy="project",cascade={"remove"})
      * @Expose
      */
     private $backlog;
@@ -72,12 +72,12 @@ class Project
     private $done;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Label", mappedBy="project")
+     * @ORM\OneToMany(targetEntity="App\Entity\Label", mappedBy="project",cascade={"remove"})
      */
     private $labels;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Status", mappedBy="project")
+     * @ORM\OneToMany(targetEntity="App\Entity\Status", mappedBy="project",cascade={"remove"})
      */
     private $statuses;
 

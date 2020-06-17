@@ -62,7 +62,7 @@ class UserStory
     private $backlog;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Comments", mappedBy="userStory")
+     * @ORM\OneToMany(targetEntity="App\Entity\Comments", mappedBy="userStory",cascade={"remove"})
      */
     private $comments;
 
@@ -78,7 +78,7 @@ class UserStory
     private $activity;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\History", mappedBy="userstory")
+     * @ORM\OneToMany(targetEntity="App\Entity\History", mappedBy="userstory",cascade={"remove"})
      */
     private $histories;
 
@@ -103,7 +103,7 @@ class UserStory
     private $progress;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\ProgressHistory", mappedBy="Userstory")
+     * @ORM\OneToMany(targetEntity="App\Entity\ProgressHistory", mappedBy="Userstory",cascade={"remove"})
      */
     private $progressHistories;
 

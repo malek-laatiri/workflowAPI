@@ -39,7 +39,7 @@ class Backlog
 
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\UserStory", mappedBy="backlog")
+     * @ORM\OneToMany(targetEntity="App\Entity\UserStory", mappedBy="backlog",cascade={"remove"})
      * @Expose
      */
     private $userStories;
