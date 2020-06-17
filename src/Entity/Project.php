@@ -81,6 +81,12 @@ class Project
      */
     private $statuses;
 
+    /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     */
+    private $sprintNum;
+
 
     public function __construct()
     {
@@ -272,6 +278,18 @@ class Project
                 $status->setProject(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSprintNum(): ?int
+    {
+        return $this->sprintNum;
+    }
+
+    public function setSprintNum(int $sprintNum): self
+    {
+        $this->sprintNum = $sprintNum;
 
         return $this;
     }

@@ -16,6 +16,7 @@ class ProjectType extends AbstractType
             ->add('startDate')
             ->add('dueDate')
             ->add('createdBy')
+            ->add('sprintNum')
             ->add('Team')
 
         ;
