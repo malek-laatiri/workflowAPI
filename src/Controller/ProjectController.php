@@ -90,7 +90,7 @@ class ProjectController extends FOSRestController
      *     description="Expedition not Found",
      * )
      * @SWG\Tag(name="Projects")
-     * * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
+     * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
      * @Security(name="Bearer")
      */
     public function postProject(Request $request, EmailService $mailer)

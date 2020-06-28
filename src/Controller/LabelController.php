@@ -138,7 +138,7 @@ class LabelController extends AbstractController
      *     response=404,
      *     description="Expedition not Found",
      * )
-     * @SWG\Tag(name="Projects")
+     * @SWG\Tag(name="Labels")
      * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
      * @Security(name="Bearer")
      */

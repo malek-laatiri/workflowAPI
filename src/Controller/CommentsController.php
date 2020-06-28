@@ -119,12 +119,43 @@ class CommentsController extends FOSRestController
      * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
      * @Security(name="Bearer")
      */
-    public function getProjectsOfOneUser($id, FilesRepository $repository)
+    public function getFilesByComment($id, FilesRepository $repository)
     {
         $allProjects = $repository->findBy(['comments' => $id]);
         $serializer = SerializerBuilder::create()->build();
         $data = $serializer->serialize($allProjects, 'json', SerializationContext::create()->enableMaxDepthChecks());
         $response = new Response($data);
         return $response;
+    }
+    /**
+     * @Rest\Delete("/delete/{id}")
+     * @SWG\Response(
+     *     response=200,
+     *     description="deleted comment")
+     * @SWG\Response(
+     *     response=401,
+     *     description="JWT Token not found / Invalid JWT Token / unauthorized",
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Expedition not Found",
+     * )
+     * @SWG\Tag(name="Comments")
+     * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
+     * @Security(name="Bearer")
+     */
+    public function DeleteComment(int $id)
+    {
+        $Comment = $this->getDoctrine()->getRepository(Comments::class)->find($id);
+        if (empty($Comment)) {
+            return new JsonResponse(['status' => 'Expedition not Found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($Comment);
+        $em->flush();
+
+        return new JsonResponse(['status' => 'ok'],
+            JsonResponse::HTTP_OK
+        );
     }
 }
