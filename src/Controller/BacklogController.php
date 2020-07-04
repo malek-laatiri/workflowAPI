@@ -57,7 +57,7 @@ class BacklogController extends FOSRestController
         $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
 
         $data = $serializer->normalize($allBacklog, null, [AbstractNormalizer::ATTRIBUTES => ['id','rank','estimatedTime','sprint',
-            'title','startdate','userStories'=>['id','subject','content','progress','estimatedTime','dueDate']],
+            'title','startdate','userStories'=>['id','subject','content','progress','estimatedTime','dueDate','isComfirmed']],
             'circular_reference_handler' => function ($object) {
                 return $object->getId();
             }]);
