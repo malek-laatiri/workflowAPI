@@ -117,10 +117,10 @@ class ProjectController extends FOSRestController
         $allProjects = $repository->findBy(['createdBy' => $userid]);
         $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
 
-        $data = $serializer->normalize($allProjects, null, [AbstractNormalizer::ATTRIBUTES => ['id','name','done','startDate','dueDate',
-            'backlog'=>['id','userStories'=>['id','subject','content'
-                ,'activity'=>['id','name'],
-                'isComfirmed','isVerified','dueDate',
+        $data = $serializer->normalize($allProjects, null, [AbstractNormalizer::ATTRIBUTES => ['id', 'name', 'done', 'startDate', 'dueDate',
+            'backlog' => ['id', 'userStories' => ['id', 'subject', 'content'
+                , 'activity' => ['id', 'name'],
+                'isComfirmed', 'isVerified', 'dueDate',
                 'progress'
 
             ],],
@@ -131,15 +131,11 @@ class ProjectController extends FOSRestController
         return new JsonResponse(
             [
                 'status' => 'ok',
-                'data'=>$data
+                'data' => $data
             ],
             JsonResponse::HTTP_CREATED
         );
     }
-
-
-
-
 
 
     /**
@@ -183,7 +179,7 @@ class ProjectController extends FOSRestController
             );
         }
         foreach ($form->getData()->getTeam() as &$value) {
-            $mailer->sendEmail($value->getEmail(),$this->render('email.html.twig', ['title' => "New Project", 'content' => " you are assigned to a new project "]));
+            $mailer->sendEmail($value->getEmail(), $this->render('email.html.twig', ['title' => "New Project", 'content' => " you are assigned to a new project "]));
 
 
         }
@@ -519,9 +515,26 @@ class ProjectController extends FOSRestController
         if (empty($project)) {
             return new JsonResponse(['status' => 'Expedition not Found'], Response::HTTP_NOT_FOUND);
         }
-        $data = SerializerBuilder::create()->build()->serialize($project->getBacklog(), 'json');
-        $response = new Response($data);
-        return $response;
+        $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
+
+        $data = $serializer->normalize($project->getBacklog(), null, [AbstractNormalizer::ATTRIBUTES => ['id','name',
+            'userStories'=>['id','subject'
+                ,'activity'=>['id','name'],
+                'isComfirmed','isVerified',
+                'progress'
+
+            ],],
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+            }]);
+
+        return new JsonResponse(
+            [
+                'status' => 'ok',
+                'data'=>$data
+            ],
+            JsonResponse::HTTP_CREATED
+        );
     }
 
     /**
