@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class BacklogController
@@ -26,7 +30,10 @@ class BacklogController extends FOSRestController
      * Lists  Backlogs By project
      * @Rest\Get("/BacklogList/{projectId}",name="BacklogList")
      * @Rest\View()
+     * @param Request $request
+     * @param int $projectId
      * @return JsonResponse|Response
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      * @SWG\Response(
      *     response=200,
      *     description="Lists all Backlogs",
@@ -39,7 +46,6 @@ class BacklogController extends FOSRestController
      *     response=404,
      *     description="Expedition not Found",
      * )
-
      * @SWG\Tag(name="Backlog")
      * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
      * @Security(name="Bearer")
@@ -48,11 +54,21 @@ class BacklogController extends FOSRestController
     {
         $repository = $this->getDoctrine()->getRepository(Backlog::class);
         $allBacklog = $repository->findBy(["project" => $projectId]);
-        $serializer = SerializerBuilder::create()->build();
+        $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
 
-        $data = $serializer->serialize($allBacklog, 'json');
-        $response = new Response($data);
-        return $response;
+        $data = $serializer->normalize($allBacklog, null, [AbstractNormalizer::ATTRIBUTES => ['id','rank','estimatedTime','sprint',
+            'title','startdate','userStories'=>['id','subject','content','progress','estimatedTime','dueDate']],
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+            }]);
+
+        return new JsonResponse(
+            [
+                'status' => 'ok',
+                'data'=>$data
+            ],
+            JsonResponse::HTTP_CREATED
+        );
     }
 
     /**

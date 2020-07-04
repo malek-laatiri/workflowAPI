@@ -87,9 +87,6 @@ class StatusController extends FOSRestController
     {
         $repository = $this->getDoctrine()->getRepository(Status::class);
         $allPriority = $repository->findBy(["project" => $projectId]);
-        $serializer = SerializerBuilder::create()->build();
-        $data = $serializer->serialize($allPriority, 'json');
-        $response = new Response($data);
 
         $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
 
@@ -145,13 +142,10 @@ class StatusController extends FOSRestController
     {
         $repository = $this->getDoctrine()->getRepository(Status::class);
         $allPriority = $repository->findBy(["project" => $projectId]);
-        $serializer = SerializerBuilder::create()->build();
-        $data = $serializer->serialize($allPriority, 'json');
-        $response = new Response($data);
 
         $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
 
-        $data = $serializer->normalize($allPriority, null, [AbstractNormalizer::ATTRIBUTES => ['id','name'],
+        $data = $serializer->normalize($allPriority, null, [AbstractNormalizer::ATTRIBUTES => ['id','name','role'],
             'circular_reference_handler' => function ($object) {
                 return $object->getId();
             }]);

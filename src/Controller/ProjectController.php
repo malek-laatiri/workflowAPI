@@ -19,6 +19,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 
 /**
@@ -70,6 +74,72 @@ class ProjectController extends FOSRestController
         $response = new Response($data);
         return $response;
     }
+
+
+    /**
+     * get all the projects of connected user
+     * @param int $userid
+     * @return Response
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     * @Rest\Get("/projectListPrime/{userid}")
+     * @SWG\Response(
+     *     response=200,
+     *     description="get all projects",
+     *     @SWG\Schema(
+     *                   type="object",
+     * @SWG\Property(property="id",type="integer",description="ID"),
+     * @SWG\Property(property="name",type="string",description="name"),
+     * @SWG\Property(property="startdate",type="Date",description="startdate"),
+     * @SWG\Property(property="duedate",type="date",description="duedate"),
+     *          @SWG\Property(property="createdBy",type="array",@Model(type="App\Entity\User"),description="User"),
+     * @SWG\Property(property="backlog",type="array",@Model(type="App\Entity\Backlog"),description="backlog of the project"),
+     * @SWG\Property(property="Team",type="array",@Model(type="App\Entity\User"),description="List of users in the same projects"),
+     * @SWG\Property(property="done",type="boolean",description="duedate"),
+     *
+     * )
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="JWT Token not found / Invalid JWT Token / unauthorized",
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Expedition not Found",
+     * )
+     * @SWG\Tag(name="Projects")
+     * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
+     * @Security(name="Bearer")
+     */
+    public function getAllProjectsPrime(int $userid)
+    {
+        $repository = $this->getDoctrine()->getRepository(Project::class);
+        $allProjects = $repository->findBy(['createdBy' => $userid]);
+        $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
+
+        $data = $serializer->normalize($allProjects, null, [AbstractNormalizer::ATTRIBUTES => ['id','name','done',
+            'backlog'=>['id','userStories'=>['id','subject','content'
+                ,'activity'=>['id','name'],
+                'isComfirmed','isVerified','dueDate',
+                'progress'
+
+            ],],
+            'role'],
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+            }]);
+        return new JsonResponse(
+            [
+                'status' => 'ok',
+                'data'=>$data
+            ],
+            JsonResponse::HTTP_CREATED
+        );
+    }
+
+
+
+
 
 
     /**

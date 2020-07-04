@@ -18,6 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use JMS\Serializer\SerializerBuilder;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class UserController
@@ -118,9 +122,20 @@ class UserController extends AbstractController
     public function getAllRoles()
     {
         $originalRoles = $this->getParameter('security.role_hierarchy.roles');
-        $data = SerializerBuilder::create()->build()->serialize($originalRoles, 'json');
-        $response = new Response($data);
-        return $response;
+        $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
+
+        $data = $serializer->normalize($originalRoles, null, [AbstractNormalizer::ATTRIBUTES => ['id','name','color'],
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+            }]);
+
+        return new JsonResponse(
+            [
+                'status' => 'ok',
+                'data'=>$data
+            ],
+            JsonResponse::HTTP_CREATED
+        );
 
     }
 

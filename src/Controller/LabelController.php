@@ -15,6 +15,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class LabelController
@@ -25,7 +29,9 @@ class LabelController extends AbstractController
 {
     /**
      * get all the labels
+     * @param int $projectId
      * @return Response
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      * @Rest\Get("/labelsList/{projectId}")
      * @SWG\Response(
      *     response=200,
@@ -54,11 +60,21 @@ class LabelController extends AbstractController
     {
         $repository = $this->getDoctrine()->getRepository(Label::class);
         $allProjects = $repository->findBy(["project"=>$projectId]);
-        $serializer = SerializerBuilder::create()->build();
 
-        $data = $serializer->serialize($allProjects, 'json', SerializationContext::create()->enableMaxDepthChecks());
-        $response = new Response($data);
-        return $response;
+        $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
+
+        $data = $serializer->normalize($allProjects, null, [AbstractNormalizer::ATTRIBUTES => ['id','name','color'],
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+            }]);
+
+        return new JsonResponse(
+            [
+                'status' => 'ok',
+                'data'=>$data
+            ],
+            JsonResponse::HTTP_CREATED
+        );
     }
 
 

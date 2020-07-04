@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class PriorityController
@@ -28,6 +32,7 @@ class PriorityController extends FOSRestController
      * @Rest\Get("/priorityList",name="priorityList")
      * @Rest\View()
      * @return JsonResponse|Response
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      * @SWG\Response(
      *     response=200,
      *     description="Lists all Priority"
@@ -48,11 +53,20 @@ class PriorityController extends FOSRestController
     {
         $repository = $this->getDoctrine()->getRepository(Priority::class);
         $allPriority = $repository->findall();
-        $serializer = SerializerBuilder::create()->build();
+        $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
 
-        $data = $serializer->serialize($allPriority, 'json');
-        $response = new Response($data);
-        return $response;
+        $data = $serializer->normalize($allPriority, null, [AbstractNormalizer::ATTRIBUTES => ['id','name'],
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+            }]);
+
+        return new JsonResponse(
+            [
+                'status' => 'ok',
+                'data'=>$data
+            ],
+            JsonResponse::HTTP_CREATED
+        );
     }
 
     /**
