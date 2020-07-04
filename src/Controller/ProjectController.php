@@ -117,7 +117,7 @@ class ProjectController extends FOSRestController
         $allProjects = $repository->findBy(['createdBy' => $userid]);
         $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
 
-        $data = $serializer->normalize($allProjects, null, [AbstractNormalizer::ATTRIBUTES => ['id','name','done',
+        $data = $serializer->normalize($allProjects, null, [AbstractNormalizer::ATTRIBUTES => ['id','name','done','startDate','dueDate',
             'backlog'=>['id','userStories'=>['id','subject','content'
                 ,'activity'=>['id','name'],
                 'isComfirmed','isVerified','dueDate',

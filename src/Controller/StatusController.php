@@ -60,6 +60,49 @@ class StatusController extends FOSRestController
         return $response;
     }
 
+
+    /**
+     * Lists all Status.
+     * @Rest\Get("/StatusListThree/{projectId}")
+     * @Rest\View()
+     * @param int $projectId
+     * @return JsonResponse|Response
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     * @SWG\Response(
+     *     response=200,
+     *     description="get all status"
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="JWT Token not found / Invalid JWT Token / unauthorized",
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Expedition not Found",
+     * )
+     * @SWG\Tag(name="Status")
+     * @SWG\Parameter(name="Authorization", in="header", required=true, type="string", default="Bearer accessToken", description="Authorization")
+     * @Security(name="Bearer")
+     */
+    public function getAllStatusThree(int $projectId)
+    {
+        $repository = $this->getDoctrine()->getRepository(Status::class);
+        $allPriority = $repository->findBy(["project" => $projectId]);
+        $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
+
+        $data = $serializer->normalize($allPriority, null, [AbstractNormalizer::ATTRIBUTES => ['id','name'],
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+            }]);
+        return new JsonResponse(
+            [
+                'status' => 'ok',
+                'data'=>$data
+            ],
+            JsonResponse::HTTP_CREATED
+        );
+    }
+
     /**
      * Lists all Status.
      * @Rest\Get("/StatusListPrime/{projectId}")

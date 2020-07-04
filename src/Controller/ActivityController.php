@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class ActivityController
@@ -53,11 +57,20 @@ class ActivityController extends AbstractController
     {
         $repository = $this->getDoctrine()->getRepository(Activity::class);
         $allProjects = $repository->findall();
-        $serializer = SerializerBuilder::create()->build();
-        $data = $serializer->serialize($allProjects, 'json');
+        $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
 
-        $response = new Response($data);
-        return $response;
+        $data = $serializer->normalize($allProjects, null, [AbstractNormalizer::ATTRIBUTES => ['id','name'],
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+            }]);
+
+        return new JsonResponse(
+            [
+                'status' => 'ok',
+                'data'=>$data
+            ],
+            JsonResponse::HTTP_CREATED
+        );
     }
 
 
