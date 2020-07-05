@@ -117,7 +117,7 @@ class ProjectController extends FOSRestController
         $allProjects = $repository->findBy(['createdBy' => $userid]);
         $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
 
-        $data = $serializer->normalize($allProjects, null, [AbstractNormalizer::ATTRIBUTES => ['id', 'name', 'done', 'startDate', 'dueDate',
+        $data = $serializer->normalize($allProjects, null, [AbstractNormalizer::ATTRIBUTES => ['id', 'name', 'done', 'startDate','sprintNum', 'dueDate','Team'=>['id','username'],
             'backlog' => ['id', 'userStories' => ['id', 'subject', 'content'
                 , 'activity' => ['id', 'name'],
                 'isComfirmed', 'isVerified', 'dueDate',
@@ -254,7 +254,7 @@ class ProjectController extends FOSRestController
 
         $entityManager->persist($form->getData());
         $entityManager->flush();
-        return new JsonResponse(['status' => 'ok',], JsonResponse::HTTP_OK);
+        return new JsonResponse(['status' => 'ok'], JsonResponse::HTTP_OK);
     }
 
     /**
