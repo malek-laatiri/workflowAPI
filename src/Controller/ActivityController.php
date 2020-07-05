@@ -29,6 +29,7 @@ class ActivityController extends AbstractController
     /**
      * lists all the activities
      * @return Response
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      * @Rest\Get("/activities")
      * @SWG\Response(
      *     response=200,

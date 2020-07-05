@@ -21,7 +21,7 @@ class EmailService
 
     public function sendEmail($user, $subject)
     {
-        $messages = (new \Swift_Message('test'))
+        $messages = (new \Swift_Message('Kanban'))
             ->setFrom('testagence6@gmail')
             ->setTo($user)
             ->setBody($subject)

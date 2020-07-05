@@ -377,7 +377,7 @@ class StatusController extends FOSRestController
         foreach (json_decode($data)->project->_team as &$value) {
 
             if (in_array(json_decode($data)->role, $value->roles)) {
-                $emailService->sendEmail($value->email,$this->render('email.html.twig', ['title' => "New Notification", 'content' => " you have new notification "]));
+                $emailService->sendEmail($value->email,$this->render('email.html.twig', ['title' => "New Notification", 'content' => "Dear ". $value->username.",you have new notification,Check you Kanban board "]));
 
             }
         }

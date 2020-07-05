@@ -179,7 +179,8 @@ class ProjectController extends FOSRestController
             );
         }
         foreach ($form->getData()->getTeam() as &$value) {
-            $mailer->sendEmail($value->getEmail(), $this->render('email.html.twig', ['title' => "New Project", 'content' => " you are assigned to a new project "]));
+            $mailer->sendEmail($value->getEmail(), $this->render('email.html.twig', ['title' => "New Project", 'content' => "Dear ".$value->getUsername().", You are assigned to a new project ".$project->getName()." starts at ".
+            $project->getStartDate()." to ".$project->getDueDate()]));
 
 
         }

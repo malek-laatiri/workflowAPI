@@ -145,7 +145,7 @@ class UserStoryController extends FOSRestController
                 JsonResponse::HTTP_BAD_REQUEST
             );
         }
-        $mailer->sendEmail($form->getData()->getAsignedTo()->getEmail(),$this->render('email.html.twig', ['title' => "New Task", 'content' => "Hi ".$form->getData()->getAsignedTo()->getUsername()." you are assigned to a new task "]));
+        $mailer->sendEmail($form->getData()->getAsignedTo()->getEmail(),$this->render('email.html.twig', ['title' => "New Task", 'content' => "Hi ".$form->getData()->getAsignedTo()->getUsername()." you are assigned to a new task ".$form->getData()->getSubject()]));
 
 
 
