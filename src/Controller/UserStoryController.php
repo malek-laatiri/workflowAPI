@@ -197,13 +197,15 @@ class UserStoryController extends FOSRestController
 
     /**
      * @param Request $request
-     * @Rest\View()
-     * @Rest\Get("/userStoryShow/{id}")
+     * @param int $id
      * @return Response
      *  * @SWG\Response(
      *     response=401,
      *     description="JWT Token not found / Invalid JWT Token / unauthorized",
      * )
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     * @Rest\View()
+     * @Rest\Get("/userStoryShow/{id}")
      * @SWG\Response(
      *     response=404,
      *     description="Expedition not Found",
@@ -220,9 +222,30 @@ class UserStoryController extends FOSRestController
         if (empty($userStory)) {
             return new JsonResponse(['status' => 'Expedition not Found'], JsonResponse::HTTP_NOT_FOUND);
         }
-        $data = $serializer = SerializerBuilder::create()->build()->serialize($userStory, 'json');
-        $response = new Response($data);
-        return $response;
+        $serializer = new Serializer([new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())]);
+
+        $data = $serializer->normalize($userStory, null, [AbstractNormalizer::ATTRIBUTES => ['id','subject','content'
+            ,'priority'=>['id','name'],
+            'status'=>['id','name'],
+            'estimatedTime','dueDate','tags'
+            ,'comments'=>['id','content','writtenAt','writtenBy'=>['id','username','email'],'files']
+            ,'activity'=>['id','name'],
+            'histories'=>['id','modifiedAt','status'=>['name']],
+            'asignedTo'=>['id','username','email','roles'],
+            'isComfirmed','isVerified','label'=>['name','color'],'dueDate',
+            'progress'
+        ],
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+            }]);
+
+        return new JsonResponse(
+            [
+                'status' => 'ok',
+                'data'=>$data
+            ],
+            JsonResponse::HTTP_CREATED
+        );
     }
 
     /**
