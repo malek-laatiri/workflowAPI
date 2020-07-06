@@ -231,7 +231,7 @@ class UserStoryController extends FOSRestController
             ,'comments'=>['id','content','writtenAt','writtenBy'=>['id','username','email'],'files']
             ,'activity'=>['id','name'],
             'histories'=>['id','modifiedAt','status'=>['name']],
-            'asignedTo'=>['id','username','email','roles'],
+            'asignedTo'=>['id','username','email','roles','privilege'],
             'isComfirmed','isVerified','label'=>['name','color'],'dueDate',
             'progress'
         ],
